@@ -1,0 +1,27 @@
+{
+  "name": "jasmine-co",
+  "license": "MIT",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gradecam/jasmine-co.git"
+  },
+  "keywords": [
+    "jasmine-co",
+    "jasmine",
+    "co",
+    "tdd",
+    "bdd"
+  ],
+  "description": "Jasmine adapter to facilitate use of co and ES6 generators.",
+  "main": "./index.js",
+  "maintainers": [
+    "Ben Loveridge <bloveridge@gmail.com>"
+  ],
+  "dependencies": {
+    "co": "^4.6.0"
+  },
+  "devDependencies": {
+    "jasmine": "^2.3.2"
+  }
+}
