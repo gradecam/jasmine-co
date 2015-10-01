@@ -52,7 +52,7 @@ describe("user models", function() {
 
     it("should be able to get a list of owned books", function*() {
         var books = yield bookService.getBooksForUser(user);
-        expect(books.length).toEqual(jasmine.any(Array));
+        expect(books).toEqual(jasmine.any(Array));
     });
 });
 ```
@@ -72,7 +72,7 @@ describe("user models", function() {
 
     it("should be able to get a list of owned books", function*() {
         var books = yield bookService.getBooksForUser(user);
-        expect(books.length).toEqual(jasmine.any(Array));
+        expect(books).toEqual(jasmine.any(Array));
     });
 
     // clean up
