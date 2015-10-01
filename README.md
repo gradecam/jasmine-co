@@ -1,33 +1,126 @@
+<div style="float:right; background-color: #f5f5f5; border:1px solid #ccc; margin: 10px 10px 10px 20px; padding:15px 10px; ">
+<div style="text-align:center"><strong>Table of Contents</strong></div>
+  <ul style="margin-bottom: 0px;">
+    <li><a href="#requirements">Requirements</a></li>
+    <li><a href="#quick-start">Quick Start</a></li>
+    <li><a href="#what-why">What? Why?</a></li>
+    <li><a href="#comparison-examples">Comparison / Examples</a></li>
+  </ul>
+</div>
+
 # jasmine-co
 
-Simple Jasmine 2.x adapter that allows you to use [co](https://github.com/tj/co)
-and ES6 generator functions to greatly simplify your asynchronous test code.
+`jasmine-co` is a simple Jasmine 2.x adapter that allows you to use
+[co](https://github.com/tj/co) and ES6 generator functions to greatly
+simplify your asynchronous test code using synchronous patterns;
 
-### Requirements
+Testing asynchronous functions doesn't have to be painful.
+
+
+### <a name="requirements"></a>Requirements
 
 1. NodeJS with support for generators
     * you can use `nodejs@0.12.x` with `--harmony`
-    * or save yourself some trouble and just use `nodejs@4.x` which has
-      support for generators on by default
+    * or save yourself some trouble and just use `nodejs@4.x` which enables
+      support for generators, arrow functions, and other ES6 features by
+      default
 2. Jasmine 2.x
 
-### Examples
 
-The examples below assume you are using Promises (let’s be honest, writing asynchronous
-code is painful enough that you probably want to avoid callback hell anyway). The
-`fail` / `done` pattern used in the examples below isn’t complicated, but it may look
-unfamiliar at first glance so here’s a brief explanation:
+### <a name="quick-start"></a>Quick Start
 
-1. Standard syntax for a promise callback is `.then(successHandler, failHandler)`, with
-   the return value of either function being used to modify the ultimate resolve value of
-   the Promise you’re chaining.
-2. When writing an asynchronous Jasmine function, you need to call `done` to let Jasmine
-   know you’re ready for it to move on to the next methods. If something goes wrong, you
-   may want to call `fail` to let Jasmine know something went wrong, which is great, but
-   but realize that this won’t call `done` for you.
-3. So this simple pattern will notify Jasmine of failures (returning `undefined` and thus
-   causing the resulting Promise to be resolved) and then call `done` after either a
-   successful or failed run: `.then(null, fail).then(done)`
+1. Install `jasmine-co`
+    * globally, e.g. in a helpers file
+    * install / uninstall within a specific `describe` block
+    * install / uninstall for a specific `it`
+    * etc.
+2. Write tests as you normally would, but use `function*` and `yield` instead
+   of `function` + `done`
+3. That's it.
+
+##### Installed globally
+
+```js
+// spec/helpers/jasmine-co.helper.js
+require('jasmine-co').install();
+
+// spec/bookService.spec.js
+describe("user models", function() {
+    beforeEach(function*(){
+        this.user = yield getUser(1);
+    });
+
+    it("should be able to get a list of owned books", function*() {
+        var books = yield bookService.getBooksForUser(user);
+        expect(books.length).toEqual(jasmine.any(Array));
+    });
+});
+```
+
+##### Installed temporarily
+
+```js
+// bookService.spec.js
+var jasmineCo = require('jasmine-co');
+describe("user models", function() {
+    // install jasmine-co for methods in this describe block
+    jasmineCo.install();
+
+    beforeEach(function*(){
+        this.user = yield getUser(1);
+    });
+
+    it("should be able to get a list of owned books", function*() {
+        var books = yield bookService.getBooksForUser(user);
+        expect(books.length).toEqual(jasmine.any(Array));
+    });
+
+    // clean up
+    jasmineCo.uninstall();
+});
+```
+
+
+### <a name="what-why"></a>What? Why?
+
+Asynchronous code is an inevitable component of any web service, helps avoid
+blocking I/O operations, and the list goes on. There's nothing wrong with
+well-written asynchronous code. Asynchronous code is good!
+
+Testing asynchronous code can be painful. When writing a test you want to
+get from Point A to Point B quickly so you can test all the interesting
+behaviors and interactions. Callback hell is very tedious inside a test;
+Promises are better, but there is still a fair bit of boilerplate to setup
+your tests and deal with the Promise resolve / rejection handlers.
+
+Wouldn't it be great if you could test your asynchronous methods using
+simple, synchronous patterns?
+
+We thought so, too. Enter `jasmine-co`.
+
+##### How?
+
+The real magic that allows us to write code this way is a combination of
+ES6 generator functions and a nice little library called [co](https://github.com/tj/co).
+`co` wraps your ES6 generator functions and waits for asynchronous operations
+to complete any time it sees a `yield` statement. As a result, you can easily
+write asynchronous code using synchronous patterns, all without actually
+making your code blocking. Thus, the following becomes possible:
+
+```js
+var list = yield someMethodThatReturnsAnArrayUsingPromises();
+console.log(list.length); // this works
+```
+
+So we wrapped Jasmine's global methods to support this syntax.
+
+
+### <a name="comparison-examples"></a>Comparison / Examples
+
+How does `jasmine-co` actually help you clean up your test code? 
+To answer that question, consider the following examples.
+
+All examples are functionally equivalent.
 
 ##### 1. Promises
 
@@ -39,7 +132,7 @@ beforeEach(function(done) {
         return bookService.getBooksForUser(user);
     }).then(function(books) {
         self.books = books;
-    }).then(null, fail).then(done);
+    }).then(done, done.fail);
 });
 
 it('should track books that are listed for sale', function(done) {
@@ -49,7 +142,7 @@ it('should track books that are listed for sale', function(done) {
         return bookService.getBooksListedForSaleByUser(self.user);
     }).then(function(forSale) {
         expect(forSale[0].isbn).toEqual(book.isbn);
-    }).then(null, fail).then(done);
+    }).then(done, done.fail);
 });
 ```
 
@@ -62,7 +155,7 @@ beforeEach(function(done) {
     co(function*() {
         self.user = yield userService.getUser(1);
         self.books = yield bookService.getBooksForUser(self.user);
-    }).then(null, fail).then(done);
+    }).then(done, done.fail);
 });
 
 it('should track books that are listed for sale', function(done) {
@@ -72,7 +165,7 @@ it('should track books that are listed for sale', function(done) {
         yield book.listForSale(3.99);
         var forSale = yield bookService.getBooksListedForSaleByUser(self.user);
         expect(forSale[0].isbn).toEqual(book.isbn);
-    }).then(null, fail).then(done);
+    }).then(done, done.fail);
 });
 ```
 
@@ -92,6 +185,7 @@ it('should track books that are listed for sale', function*() {
     expect(forSale[0].isbn).toEqual(book.isbn);
 });
 ```
+
 
 ### License
 

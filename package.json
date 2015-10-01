@@ -10,10 +10,11 @@
     "jasmine-co",
     "jasmine",
     "co",
-    "tdd",
-    "bdd"
+    "es6",
+    "generators",
+    "yield"
   ],
-  "description": "Jasmine adapter to facilitate use of co and ES6 generators.",
+  "description": "Jasmine adapter to facilitate the use of ES6 generators via co.",
   "main": "./index.js",
   "maintainers": [
     "Ben Loveridge <bloveridge@gmail.com>"
