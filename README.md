@@ -12,7 +12,7 @@
 
 `jasmine-co` is a simple Jasmine 2.x adapter that allows you to use
 [co](https://github.com/tj/co) and ES6 generator functions to greatly
-simplify your asynchronous test code using synchronous patterns;
+simplify your asynchronous test code using synchronous patterns.
 
 Testing asynchronous functions doesn't have to be painful.
 
