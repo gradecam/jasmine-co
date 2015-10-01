@@ -47,7 +47,7 @@ function coifyJasmineFn(fname) {
             //      encountered and notifies jasmine that the spec is done when the co
             //      promise settles
             var args = [function(done) {
-                return co(userFn.bind(this)).then(null, fail).then(done);
+                return co(userFn.bind(this)).then(done, done.fail);
             }];
             if (expectsName) { args.unshift(arguments[0]); }
             return origFn.apply(null, args);
