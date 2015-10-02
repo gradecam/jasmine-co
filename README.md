@@ -60,7 +60,7 @@ describe("user models", function() {
 ##### Installed temporarily
 
 ```js
-// bookService.spec.js
+// spec/bookService.spec.js
 var jasmineCo = require('jasmine-co');
 describe("user models", function() {
     // install jasmine-co for methods in this describe block
