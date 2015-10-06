@@ -1,12 +1,11 @@
-<div style="float:right; background-color: #f5f5f5; border:1px solid #ccc; margin: 10px 10px 10px 20px; padding:15px 10px; ">
-<div style="text-align:center"><strong>Table of Contents</strong></div>
-  <ul style="margin-bottom: 0px;">
-    <li><a href="#requirements">Requirements</a></li>
-    <li><a href="#quick-start">Quick Start</a></li>
-    <li><a href="#what-why">What? Why?</a></li>
-    <li><a href="#comparison-examples">Comparison / Examples</a></li>
-  </ul>
-</div>
+[![Build Status](https://travis-ci.org/gradecam/jasmine-co.svg?branch=master)](https://travis-ci.org/gradecam/jasmine-co)
+
+**Table of Contents**
+
+* [Requirements](#requirements)
+* [Quick Start](#quick-start)
+* [What? Why?](#what-why)
+* [Comparison / Examples](#comparison-examples)
 
 # jasmine-co
 
