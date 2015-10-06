@@ -19,6 +19,9 @@
   "maintainers": [
     "Ben Loveridge <bloveridge@gmail.com>"
   ],
+  "scripts": {
+      "test": "jasmine"
+  },
   "dependencies": {
     "co": "^4.6.0",
     "is-generator": "^1.0.2"
