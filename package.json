@@ -20,7 +20,8 @@
     "Ben Loveridge <bloveridge@gmail.com>"
   ],
   "dependencies": {
-    "co": "^4.6.0"
+    "co": "^4.6.0",
+    "is-generator": "^1.0.2"
   },
   "devDependencies": {
     "jasmine": "^2.3.2"
