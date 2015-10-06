@@ -1,4 +1,5 @@
-var co = require('co');
+var co = require('co'),
+    isGeneratorFn = require('is-generator').fn;
 
 var DEFAULT_METHODS = [
     'afterAll',
@@ -40,7 +41,7 @@ function coifyJasmineFn(fname) {
     global[fname] = function() {
         var expectsName = arguments.length > 1; // `it('does stuff', fn)` (length 2) vs `beforeEach(fn)` (length 1)
         var userFn = expectsName ? arguments[1] : arguments[0];
-        if (/^function\s*\*/.test(userFn.toString())) {
+        if (isGeneratorFn(userFn)) {
             // if the user method is a generator:
             //   1. call it with the correct `this` context object
             //   2. wrap it in a co function which fails the spec if an exception is

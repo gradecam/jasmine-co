@@ -51,7 +51,7 @@ describe("user models", function() {
     });
 
     it("should be able to get a list of owned books", function*() {
-        var books = yield bookService.getBooksForUser(user);
+        var books = yield bookService.getBooksForUser(this.user);
         expect(books).toEqual(jasmine.any(Array));
     });
 });
@@ -60,7 +60,7 @@ describe("user models", function() {
 ##### Installed temporarily
 
 ```js
-// bookService.spec.js
+// spec/bookService.spec.js
 var jasmineCo = require('jasmine-co');
 describe("user models", function() {
     // install jasmine-co for methods in this describe block
@@ -71,7 +71,7 @@ describe("user models", function() {
     });
 
     it("should be able to get a list of owned books", function*() {
-        var books = yield bookService.getBooksForUser(user);
+        var books = yield bookService.getBooksForUser(this.user);
         expect(books).toEqual(jasmine.any(Array));
     });
 
