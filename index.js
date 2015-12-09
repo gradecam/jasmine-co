@@ -9,28 +9,29 @@ var DEFAULT_METHODS = [
     'it', 'fit', //'xit',
 ];
 var originalMethods = {},
-    overrideMethods, isInstalled;
+    overrideMethods, installed;
 
-module.exports = {
-    install: function() {
-        (overrideMethods || DEFAULT_METHODS).forEach(function(fname) {
-            coifyJasmineFn(fname);
-        });
-        isInstalled = true;
-    },
-    uninstall: function() {
-        Object.keys(originalMethods).forEach(function(key) {
-            global[key] = originalMethods[key];
-        });
-        originalMethods = {};
-        isInstalled = false;
-    },
-    isInstalled: function() {
-        return isInstalled;
-    },
-    setOverrideMethods: function(methods) {
-        overrideMethods = Array.isArray(methods) ? methods : DEFAULT_METHODS;
-    }
+module.exports = function jasmineCo(userFn) {
+    return wrapFn(userFn);
+};
+module.exports.install = function install() {
+    (overrideMethods || DEFAULT_METHODS).forEach(function(fname) {
+        coifyJasmineFn(fname);
+    });
+    installed = true;
+};
+module.exports.uninstall = function uninstall() {
+    Object.keys(originalMethods).forEach(function(key) {
+        global[key] = originalMethods[key];
+    });
+    originalMethods = {};
+    installed = false;
+};
+module.exports.isInstalled = function isInstalled() {
+    return installed;
+};
+module.exports.setOverrideMethods = function setOverrideMethods(methods) {
+    overrideMethods = Array.isArray(methods) ? methods : DEFAULT_METHODS;
 };
 
 function coifyJasmineFn(fname) {
@@ -38,7 +39,11 @@ function coifyJasmineFn(fname) {
     if (!global[fname] || originalMethods[fname]) { return; }
 
     var origFn = originalMethods[fname] = global[fname];
-    global[fname] = function() {
+    global[fname] = wrapFn(origFn);
+}
+
+function wrapFn(origFn) {
+    return function() {
         var expectsName = arguments.length > 1; // `it('does stuff', fn)` (length 2) vs `beforeEach(fn)` (length 1)
         var userFn = expectsName ? arguments[1] : arguments[0];
         if (isGeneratorFn(userFn)) {

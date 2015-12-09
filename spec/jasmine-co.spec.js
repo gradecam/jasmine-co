@@ -104,4 +104,13 @@ describe("jasmine-co", function() {
 
         jasmineCo.uninstall();
     });
+
+    describe("invoking jasmine-co as a function", function() {
+        it("should pass a spec when passed a standard function", jasmineCo(function() {
+            expect(1).toBe(1);
+        }));
+        it("should pass a spec when passed a generator function", jasmineCo(function*() {
+            expect(yield [1]).toEqual([1]);
+        }));
+    });
 });

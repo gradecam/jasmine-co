@@ -32,6 +32,7 @@ Testing asynchronous functions doesn't have to be painful.
     * globally, e.g. in a helpers file
     * install / uninstall within a specific `describe` block
     * install / uninstall for a specific `it`
+    * one-off usage
     * etc.
 2. Write tests as you normally would, but use `function*` and `yield` instead
    of `function` + `done`
@@ -76,6 +77,25 @@ describe("user models", function() {
 
     // clean up
     jasmineCo.uninstall();
+});
+```
+
+##### One-off usage
+
+```js
+// spec/bookService.spec.js
+var jasmineCo = require('jasmine-co');
+describe("user models", function() {
+    // use jasmine-co as a one-off
+    beforeEach(jasmineCo(function*(){
+        this.user = yield getUser(1);
+    }));
+
+    // use jasmine-co as a one-off again
+    it("should be able to get a list of owned books", jasmineCo(function*() {
+        var books = yield bookService.getBooksForUser(this.user);
+        expect(books).toEqual(jasmine.any(Array));
+    }));
 });
 ```
 
