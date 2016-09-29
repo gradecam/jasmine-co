@@ -46,19 +46,36 @@ function wrapFn(origFn) {
     return function() {
         var expectsName = arguments.length > 1; // `it('does stuff', fn)` (length 2) vs `beforeEach(fn)` (length 1)
         var userFn = expectsName ? arguments[1] : arguments[0];
+        var args;
         if (isGeneratorFn(userFn)) {
             // if the user method is a generator:
             //   1. call it with the correct `this` context object
             //   2. wrap it in a co function which fails the spec if an exception is
             //      encountered and notifies jasmine that the spec is done when the co
             //      promise settles
-            var args = [function(done) {
+            args = [function(done) {
                 return co(userFn.bind(this)).then(done, done.fail);
             }];
             if (expectsName) { args.unshift(arguments[0]); }
             return origFn.apply(null, args);
+        } else if (!userFn.length) {
+            // if the user method is a standard function that doesn't expect to be asynchronous
+            // (i.e. it doesn't take `done` as a parameter), wrap it with a function that *is*
+            // asynchronous and retrofit it to support returning a promise from the function
+            args = [function(done) {
+                let result = userFn.call(this);
+                if (!(result && typeof result.then === 'function')) {
+                    done();
+                    return result;
+                } else {
+                    result.then(done, done.fail);
+                }
+            }];
+            if (expectsName) { args.unshift(arguments[0]); }
+            return origFn.apply(null, args);
         } else {
-            // if the user method is a standard function, just call the standard jasmine method
+            // if the user method is already asynchronous, just call the standard jasmine method
+            // and let the user method take care of itself
             return origFn.apply(null, arguments);
         }
     };
