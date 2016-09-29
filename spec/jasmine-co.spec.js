@@ -84,21 +84,69 @@ describe("jasmine-co", function() {
     describe("when installed", function() {
         jasmineCo.install();
 
-        it("should pass a spec with a generator function provided", function*() {
-            expect(yield [1]).toEqual([1]);
+        describe("generators", function() {
+            it("should pass a generator-based spec", function*() {
+                expect(yield [1]).toEqual([1]);
+            });
+
+            describe('with generator-based before blocks', function() {
+                beforeEach(function*() {
+                    this.val = yield new Promise(function(resolve, reject) { resolve(3); });
+                });
+
+                it("should have yielded values from the before block available in generator-based specs", function*() {
+                    expect(this.val).toBe(3);
+                    yield []; // just to silence jshint
+                });
+                it("should have yielded values from the before block available in standard specs", function() {
+                    expect(this.val).toBe(3);
+                });
+            });
         });
 
-        describe('using generator-based before blocks', function() {
-            beforeEach(function*() {
-                this.val = yield new Promise(function(resolve, reject) { resolve(3); });
+        describe("promises", function() {
+            it("should pass a promise-returning spec", function() {
+                return new Promise(function(resolve, reject) {
+                    resolve([1]);
+                }).then(val => {
+                    expect(val).toEqual([1]);
+                });
             });
 
-            it("should have yielded values from the before block available in generator-based specs", function*() {
-                expect(this.val).toBe(3);
-                yield []; // just to silence jshint
+            describe('with promise-returning before blocks', function() {
+                beforeEach(function() {
+                    return new Promise((resolve, reject) => {
+                        resolve(3);
+                    }).then(val => {
+                        this.val = val;
+                    });
+                });
+
+                it("should have values from the before promise block available in promise-returning specs", function() {
+                    return new Promise((resolve, reject) => {
+                        resolve(4);
+                    }).then(val => {
+                        expect(this.val).toBe(3);
+                        expect(val).toBe(4);
+                    });
+                });
+                it("should have values from the before promise block available in standard specs", function() {
+                    expect(this.val).toBe(3);
+                });
             });
-            it("should have yielded values from the before block available in standard specs", function() {
-                expect(this.val).toBe(3);
+        });
+
+        describe("generators + promises", function() {
+            beforeEach(function*(){
+                this.val = yield [1];
+            });
+
+            it("should be possible to use promise- and generator-based functions interoperate", function() {
+                return new Promise((resolve, reject) => {
+                    resolve();
+                }).then(() => {
+                    expect(this.val).toEqual([1]);
+                });
             });
         });
 
@@ -111,6 +159,13 @@ describe("jasmine-co", function() {
         }));
         it("should pass a spec when passed a generator function", jasmineCo(function*() {
             expect(yield [1]).toEqual([1]);
+        }));
+        it("should pass a spec when the function returns a promise", jasmineCo(function() {
+            return new Promise((resolve, reject) => {
+                resolve(1);
+            }).then(val => {
+                expect(val).toBe(1);
+            });
         }));
     });
 });

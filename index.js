@@ -58,7 +58,7 @@ function wrapFn(origFn) {
             }];
             if (expectsName) { args.unshift(arguments[0]); }
             return origFn.apply(null, args);
-        } else if (!userFn.length) {
+        } else if (userFn && !userFn.length) {
             // if the user method is a standard function that doesn't expect to be asynchronous
             // (i.e. it doesn't take `done` as a parameter), wrap it with a function that *is*
             // asynchronous and retrofit it to support returning a promise from the function
