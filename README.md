@@ -143,40 +143,6 @@ describe("user models", function() {
 ```
 
 
-### <a name="what-why"></a>What? Why?
-
-Asynchronous code is an inevitable component of any web service, helps avoid
-blocking I/O operations, and the list goes on. There's nothing wrong with
-well-written asynchronous code. Asynchronous code is good!
-
-Testing asynchronous code can be painful. When writing a test you want to
-get from Point A to Point B quickly so you can test all the interesting
-behaviors and interactions. Callback hell is very tedious inside a test;
-Promises are better, but there is still a fair bit of boilerplate to setup
-your tests and deal with the Promise resolve / rejection handlers.
-
-Wouldn't it be great if you could test your asynchronous methods using
-simple, synchronous patterns?
-
-We thought so, too. Enter `jasmine-co`.
-
-##### How?
-
-The real magic that allows us to write code this way is a combination of
-ES6 generator functions and a nice little library called [co](https://github.com/tj/co).
-`co` wraps your ES6 generator functions and waits for asynchronous operations
-to complete any time it sees a `yield` statement. As a result, you can easily
-write asynchronous code using synchronous patterns, all without actually
-making your code blocking. Thus, the following becomes possible:
-
-```js
-var list = yield someMethodThatReturnsAnArrayUsingPromises();
-console.log(list.length); // this works
-```
-
-So we wrapped Jasmine's global methods to support this syntax.
-
-
 ### <a name="comparison-examples"></a>Comparison / Examples
 
 How does `jasmine-co` actually help you clean up your test code? 
