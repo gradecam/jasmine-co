@@ -13,6 +13,10 @@
 [co](https://github.com/tj/co) and ES6 generator functions to greatly
 simplify your asynchronous test code using synchronous patterns.
 
+`jasmine-co` also enables you to return promises from your specs without
+manually worrying about handling Jasmine's `done` callback. For you
+TypeScript fans, this means you can trivially use `async/await`.
+
 Testing asynchronous functions doesn't have to be painful.
 
 
@@ -34,8 +38,9 @@ Testing asynchronous functions doesn't have to be painful.
     * install / uninstall for a specific `it`
     * one-off usage
     * etc.
-2. Write tests as you normally would, but use `function*` and `yield` instead
-   of `function` + `done`
+2. Write tests as normal, but instead of using `function` + `done`, either...
+    * use `function*` and `yield`, or
+    * a `function` that returns a promise (thennable)
 3. That's it.
 
 ##### Installed globally
@@ -53,6 +58,12 @@ describe("user models", function() {
     it("should be able to get a list of owned books", function*() {
         var books = yield bookService.getBooksForUser(this.user);
         expect(books).toEqual(jasmine.any(Array));
+    });
+
+    it("should also work when promises are returned", function() {
+        return bookService.getBooksForUser(this.user).then(function(books) {
+            expect(books).toEqual(jasmine.any(Array));
+        });
     });
 });
 ```
@@ -73,6 +84,12 @@ describe("user models", function() {
     it("should be able to get a list of owned books", function*() {
         var books = yield bookService.getBooksForUser(this.user);
         expect(books).toEqual(jasmine.any(Array));
+    });
+
+    it("should also work when promises are returned", function() {
+        return bookService.getBooksForUser(this.user).then(function(books) {
+            expect(books).toEqual(jasmine.any(Array));
+        });
     });
 
     // clean up
@@ -96,6 +113,32 @@ describe("user models", function() {
         var books = yield bookService.getBooksForUser(this.user);
         expect(books).toEqual(jasmine.any(Array));
     }));
+
+    // use jasmine-co as a one-off for a promise-returning spec
+    it("should also work when promises are returned", function() {
+        return bookService.getBooksForUser(this.user).then(function(books) {
+            expect(books).toEqual(jasmine.any(Array));
+        });
+    });
+});
+```
+
+##### TypeScript async/await example
+
+```js
+// spec/helpers/jasmine-co.helper.js
+require('jasmine-co').install();
+
+// spec/bookService.spec.ts
+describe("user models", function() {
+    beforeEach(async function(){
+        this.user = await getUser(1);
+    });
+
+    it("should be able to get a list of owned books", async function() {
+        var books = await bookService.getBooksForUser(this.user);
+        expect(books).toEqual(jasmine.any(Array));
+    });
 });
 ```
 
