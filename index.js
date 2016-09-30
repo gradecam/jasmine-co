@@ -63,7 +63,7 @@ function wrapFn(origFn) {
             // (i.e. it doesn't take `done` as a parameter), wrap it with a function that *is*
             // asynchronous and retrofit it to support returning a promise from the function
             args = [function(done) {
-                let result = userFn.call(this);
+                var result = userFn.call(this);
                 if (!(result && typeof result.then === 'function')) {
                     done();
                     return result;
