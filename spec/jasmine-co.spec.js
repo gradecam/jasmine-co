@@ -150,6 +150,41 @@ describe("jasmine-co", function() {
             });
         });
 
+        describe("custom timeouts", function() {
+            var origTimeout;
+            beforeAll(() => {
+                origTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+                jasmine.DEFAULT_TIMEOUT_INTERVAL = 0;
+            });
+            afterAll(() => jasmine.DEFAULT_TIMEOUT_INTERVAL = origTimeout);
+
+
+            beforeAll(function() { // tests custom delay on promise-returning setup method
+                return new Promise(resolve => {
+                    setTimeout(() => resolve(true), 25);
+                }).then(val => this.delayedBeforeAll = val);
+            }, 50);
+
+            beforeEach(function*() { // tests custom delay on generator-based setup method
+                var promise = new Promise(resolve => {
+                    setTimeout(() => resolve(true), 25);
+                });
+                this.delayedBeforeEach = yield promise;
+            }, 50);
+
+            it("should be honored for `beforeAll` and `beforeEach` methods", function() {
+                expect(this.delayedBeforeAll).toBe(true);
+                expect(this.delayedBeforeEach).toBe(true);
+            });
+
+            it("should be honored for `it` methods", function*() {
+                var promise = new Promise(resolve => {
+                    setTimeout(() => resolve(true), 25);
+                });
+                expect(yield promise).toBe(true);
+            }, 50);
+        });
+
         jasmineCo.uninstall();
     });
 

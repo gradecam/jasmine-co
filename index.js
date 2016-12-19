@@ -8,6 +8,8 @@ var DEFAULT_METHODS = [
     'beforeEach',
     'it', 'fit', //'xit',
 ];
+var EXPECTS_NAME = ['it', 'fit', 'xit'];
+
 var originalMethods = {},
     overrideMethods, installed;
 
@@ -39,13 +41,13 @@ function coifyJasmineFn(fname) {
     if (!global[fname] || originalMethods[fname]) { return; }
 
     var origFn = originalMethods[fname] = global[fname];
-    global[fname] = wrapFn(origFn);
+    global[fname] = wrapFn(origFn, EXPECTS_NAME.indexOf(fname) !== -1);
 }
 
-function wrapFn(origFn) {
+function wrapFn(origFn, expectsName) {
     return function() {
-        var expectsName = arguments.length > 1; // `it('does stuff', fn)` (length 2) vs `beforeEach(fn)` (length 1)
         var userFn = expectsName ? arguments[1] : arguments[0];
+        var restParams = [].slice.call(arguments, expectsName ? 2 : 1);
         var args;
         if (isGeneratorFn(userFn)) {
             // if the user method is a generator:
@@ -57,6 +59,7 @@ function wrapFn(origFn) {
                 return co(userFn.bind(this)).then(done, done.fail);
             }];
             if (expectsName) { args.unshift(arguments[0]); }
+            if (restParams.length) { args.push.apply(args, restParams); }
             return origFn.apply(null, args);
         } else if (userFn && !userFn.length) {
             // if the user method is a standard function that doesn't expect to be asynchronous
@@ -72,6 +75,7 @@ function wrapFn(origFn) {
                 }
             }];
             if (expectsName) { args.unshift(arguments[0]); }
+            if (restParams.length) { args.push.apply(args, restParams); }
             return origFn.apply(null, args);
         } else {
             // if the user method is already asynchronous, just call the standard jasmine method
