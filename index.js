@@ -56,7 +56,7 @@ function wrapFn(origFn, expectsName) {
             //      encountered and notifies jasmine that the spec is done when the co
             //      promise settles
             args = [function(done) {
-                return co(userFn.bind(this)).then(done, done.fail);
+                return co(userFn.bind(this)).then(done, function(err) { setTimeout(done,1); done.fail(err); });
             }];
             if (expectsName) { args.unshift(arguments[0]); }
             if (restParams.length) { args.push.apply(args, restParams); }
@@ -71,7 +71,7 @@ function wrapFn(origFn, expectsName) {
                     done();
                     return result;
                 } else {
-                    result.then(done, done.fail);
+                    result.then(done, function(err) { setTimeout(done,1); done.fail(err); });
                 }
             }];
             if (expectsName) { args.unshift(arguments[0]); }
